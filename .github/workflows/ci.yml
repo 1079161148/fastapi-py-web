@@ -38,6 +38,9 @@ jobs:
     env:
       # JWT_SECRET 有 >=32 的启动校验：写短了应用根本起不来（CI 曾在此失败）
       JWT_SECRET: ci-test-secret-0123456789abcdef0123456789abcdef
+      # 必须显式指向 service 容器：应用默认值是本地错峰端口 56379，
+      # 连不上时限流会 fail-open，限流用例就永远拿不到 429
+      REDIS_URL: redis://localhost:6379/0
       APP_DB_PASSWORD: aics_app
       DATABASE_URL: postgresql+asyncpg://aics_app:aics_app@localhost:5432/aics_test
       MIGRATION_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/aics_test
@@ -52,6 +55,12 @@ jobs:
         run: uv run ruff check . && uv run ruff format --check .
       - name: mypy
         run: uv run mypy app
+      - name: 检查 service 容器连通性
+        # 提前炸出"服务没起来/端口不对"，而不是让限流用例在 fail-open 下
+        # 表现成神秘的 401/200（CI 曾在此浪费两轮）
+        run: |
+          uv run python -c "import socket; socket.create_connection(('localhost', 5432), timeout=5).close(); print('postgres ok')"
+          uv run python -c "import socket; socket.create_connection(('localhost', 6379), timeout=5).close(); print('redis ok')"
       - name: 迁移
         run: uv run alembic upgrade head
       - name: pytest（含 RLS 跨租户隔离验证）
