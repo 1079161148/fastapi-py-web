@@ -1,0 +1,26 @@
+[Unit]
+Description=AICS API (uvicorn)
+After=network-online.target postgresql.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aics
+Group=aics
+WorkingDirectory=/opt/aics/backend
+EnvironmentFile=/etc/aics/api.env
+# 多进程：实时事件走 Redis 广播，进程间无共享状态
+ExecStart=/opt/aics/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
+# 优雅重启：先停止接收新连接，等待进行中的 SSE 结束（默认 30s 可能不够长）
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=3
+TimeoutStopSec=60
+# 基础加固：不要求完整沙箱，但去掉可写目录与提权路径
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

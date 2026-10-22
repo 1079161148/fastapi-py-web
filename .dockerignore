@@ -1,0 +1,30 @@
+# 构建上下文裁剪：镜像只需要 backend/、frontend/ 与 deploy/ 的必要部分。
+# 少了它，node_modules（数百 MB）会在每次 build 时被打包上传，构建慢十倍。
+
+.git
+.github
+.vite
+docs
+
+**/node_modules
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+
+backend/.venv
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/var
+backend/api.log
+backend/api.err
+backend/api2.log
+backend/api2.err
+
+frontend/dist
+frontend/*.tsbuildinfo
+
+deploy/.env
+deploy/backups

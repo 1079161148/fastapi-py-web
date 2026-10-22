@@ -1,0 +1,50 @@
+# ===== 通用 =====
+.DS_Store
+Thumbs.db
+*.log
+# Vite 依赖预构建缓存
+.vite/
+# vue-tsc 增量构建产物
+*.tsbuildinfo
+# 运行期重定向出来的 stderr（如 uvicorn 的 traceback），不入库
+*.err
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ===== 后端 =====
+backend/.venv/
+backend/*.egg-info/
+# 本地上传目录（STORAGE_LOCAL_DIR 默认值）
+backend/var/
+
+# ===== 部署 =====
+# 生产环境变量含密钥，绝不入库；模板需要入库
+deploy/.env
+!deploy/.env.prod.example
+deploy/backups/
+# 证书（含私钥）；自签证书仅本地验证用
+deploy/certs/
+
+# ===== 前端 =====
+node_modules/
+frontend/dist/
+frontend/.vite/
+pnpm-debug.log*
+npm-debug.log*
+
+# ===== 编辑器 / 系统 =====
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp

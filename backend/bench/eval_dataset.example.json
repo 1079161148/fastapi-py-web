@@ -1,0 +1,10 @@
+{
+  "description": "检索评估集示例：把 query 换成真实客服问题，expected_documents 换成知识库里对应的文档名（含后缀）。按业务变更维护，作为改分块/召回参数前后的回归基线。",
+  "cases": [
+    {"query": "退款多久能到账", "expected_documents": ["退款政策.md"]},
+    {"query": "发票怎么开、多久能开出来", "expected_documents": ["发票说明.md"]},
+    {"query": "支持哪些付款方式", "expected_documents": ["支付方式.md"]},
+    {"query": "怎么修改绑定的手机号", "expected_documents": ["账号管理.md"]},
+    {"query": "客服的上班时间是几点", "expected_documents": ["服务时间.md"]}
+  ]
+}

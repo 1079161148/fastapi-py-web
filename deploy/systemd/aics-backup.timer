@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily AICS database backup at 03:30
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+# 机器关机错过时间点后，开机 10 分钟内补跑一次
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=AICS database backup
+# 备份期间不需要应用在线，但必须等数据库起来
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=aics
+Group=aics
+WorkingDirectory=/opt/aics
+Environment=BACKUP_DIR=/var/backups/aics
+Environment=RETENTION_DAYS=14
+ExecStart=/opt/aics/deploy/backup.sh

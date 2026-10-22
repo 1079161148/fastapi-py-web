@@ -1,0 +1,22 @@
+[Unit]
+Description=AICS arq worker
+After=network-online.target postgresql.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aics
+Group=aics
+WorkingDirectory=/opt/aics/backend
+EnvironmentFile=/etc/aics/api.env
+ExecStart=/opt/aics/backend/.venv/bin/arq app.workers.settings.WorkerSettings
+Restart=always
+RestartSec=5
+TimeoutStopSec=120
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

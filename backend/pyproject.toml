@@ -1,0 +1,61 @@
+[project]
+name = "aics-backend"
+version = "0.1.0"
+description = "智能客服 AI 系统后端"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.150.0",
+    "uvicorn>=0.54.0",
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.7.0",
+    "sqlalchemy[asyncio]>=2.1.5",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "structlog>=24.4.0",
+    "pyjwt>=2.10.0",
+    "bcrypt>=4.2.0",
+    "redis>=5.2.0",
+    "arq>=0.26.1",
+    "pypdf>=6.21.1",
+    "python-docx>=1.2.0",
+    "jieba>=0.42.1",
+    "pgvector>=0.5.1",
+    # 渠道出站（微信客服消息 / 钉钉机器人 API）：M4 起是运行时必需，不是测试依赖
+    "httpx>=0.28.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.9.0",
+    "mypy>=1.14.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+# RUF001-003 对中文注释/文档字符串是全角标点误报，本项目以中文写注释，整体不启用 RUF
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# FastAPI 依赖注入的惯用法：Depends 写在参数默认值上
+"app/api/**" = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

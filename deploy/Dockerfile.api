@@ -1,0 +1,37 @@
+# 生产镜像：API 与 arq worker 共用，靠 command 区分。
+#
+# 构建上下文必须是仓库根目录（需要 backend/ 与 migrations/）：
+#   docker build -f deploy/Dockerfile.api -t aics-api:prod .
+
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+RUN pip install --no-cache-dir uv
+
+WORKDIR /app
+
+# 依赖层单独构建：代码变更不触发重装依赖
+COPY backend/pyproject.toml ./pyproject.toml
+RUN uv venv /app/.venv && VIRTUAL_ENV=/app/.venv uv pip install .
+
+# 迁移脚本一并进镜像：生产升级要能在容器里直接 alembic upgrade head
+COPY backend/app ./app
+COPY backend/alembic.ini ./alembic.ini
+COPY backend/migrations ./migrations
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+# 非 root 运行：应用运行期不写任何系统目录
+RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin aics \
+    && mkdir -p /app/var/uploads \
+    && chown -R aics:aics /app
+
+USER aics
+EXPOSE 8000
+
+# 多 worker：流式/实时事件走 Redis 广播，多进程无共享状态。
+# 进程数用 API_WORKERS 覆盖（建议 = CPU 核数，上限 4）。
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${API_WORKERS:-2}"]
