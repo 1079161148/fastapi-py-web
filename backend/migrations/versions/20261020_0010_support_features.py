@@ -62,7 +62,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["created_by"], ["users.id"], ondelete="SET NULL"),
     )
     op.create_index(
-        "ix_quick_replies_tenant_id_category_sort", "quick_replies", ["tenant_id", "category", "sort_order"]
+        "ix_quick_replies_tenant_id_category_sort",
+        "quick_replies",
+        ["tenant_id", "category", "sort_order"],
     )
 
     # ---- 审计日志 ----
@@ -96,9 +98,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["actor_id"], ["users.id"], ondelete="SET NULL"),
     )
-    op.create_index(
-        "ix_audit_logs_tenant_id_created_at", "audit_logs", ["tenant_id", "created_at"]
-    )
+    op.create_index("ix_audit_logs_tenant_id_created_at", "audit_logs", ["tenant_id", "created_at"])
     op.create_index("ix_audit_logs_tenant_id_action", "audit_logs", ["tenant_id", "action"])
 
     # ---- 新表权限与 RLS（与 0002/0009 一致）----

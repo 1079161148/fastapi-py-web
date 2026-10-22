@@ -105,9 +105,7 @@ async def merge_guest(
     # 否则访客在别的租户登录一次就会丢掉自己的匿名历史
     if result.status != guest_service.MERGE_STATUS_NO_SESSION:
         response.delete_cookie(GUEST_COOKIE_NAME, path="/")
-    return MergeGuestResult(
-        merged_conversations=result.merged_conversations, status=result.status
-    )
+    return MergeGuestResult(merged_conversations=result.merged_conversations, status=result.status)
 
 
 def _parse_optional_guest_id(raw: str | None) -> uuid.UUID | None:

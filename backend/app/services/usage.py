@@ -162,9 +162,7 @@ async def record(
             )
             await session.commit()
     except Exception:  # noqa: BLE001 - 用量记录失败不能影响业务主流程
-        logger.exception(
-            "usage_record_failed", kind=kind, tenant_id=str(tenant_id), model=model
-        )
+        logger.exception("usage_record_failed", kind=kind, tenant_id=str(tenant_id), model=model)
     finally:
         set_current_tenant(previous)
 
@@ -284,9 +282,7 @@ async def daily_tokens_used(
 ) -> int:
     """当日已用 token（prompt + completion）。"""
     start = day_start(now)
-    tokens = func.coalesce(
-        func.sum(LLMUsageLog.prompt_tokens + LLMUsageLog.completion_tokens), 0
-    )
+    tokens = func.coalesce(func.sum(LLMUsageLog.prompt_tokens + LLMUsageLog.completion_tokens), 0)
     used = await session.scalar(
         select(tokens).where(
             LLMUsageLog.tenant_id == tenant_id,
@@ -313,9 +309,7 @@ async def enforce_daily_token_quota(session: AsyncSession, *, tenant_id: uuid.UU
     if used < limit:
         return
 
-    logger.warning(
-        "token_quota_exceeded", tenant_id=str(tenant_id), used=used, limit=limit
-    )
+    logger.warning("token_quota_exceeded", tenant_id=str(tenant_id), used=used, limit=limit)
     # 成本失控是经营风险，必须能推给运维；内部按 key 做 10 分钟去重
     await send_alert(
         "token_quota_exceeded",
@@ -327,8 +321,7 @@ async def enforce_daily_token_quota(session: AsyncSession, *, tenant_id: uuid.UU
     raise AppError(
         code="TOKEN_QUOTA_EXCEEDED",
         message=(
-            f"本租户今日 AI 用量已达上限（{used}/{limit} tokens），"
-            "请稍后再试或联系管理员调整配额"
+            f"本租户今日 AI 用量已达上限（{used}/{limit} tokens），请稍后再试或联系管理员调整配额"
         ),
         status_code=429,
         detail={"used": used, "limit": limit},

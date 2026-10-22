@@ -41,17 +41,13 @@ class QuickReply(Base, TimestampMixin):
 
     __tablename__ = "quick_replies"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    category: Mapped[str] = mapped_column(
-        String(20), nullable=False, default="other"
-    )
+    category: Mapped[str] = mapped_column(String(20), nullable=False, default="other")
     # 排序权重：同分组内越小越靠前
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_by: Mapped[uuid.UUID | None] = mapped_column(
@@ -68,9 +64,7 @@ class AuditLog(Base, TimestampMixin):
 
     __tablename__ = "audit_logs"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
@@ -96,9 +90,7 @@ class QualityReview(Base, TimestampMixin):
 
     __tablename__ = "quality_reviews"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
@@ -139,9 +131,7 @@ class SensitiveHit(Base, TimestampMixin):
 
     __tablename__ = "sensitive_hits"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
@@ -153,9 +143,7 @@ class SensitiveHit(Base, TimestampMixin):
         UUID(as_uuid=True), ForeignKey("messages.id", ondelete="SET NULL"), nullable=True
     )
     words: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
-    action: Mapped[str] = mapped_column(
-        String(20), nullable=False, default=SENSITIVE_ACTION_WARN
-    )
+    action: Mapped[str] = mapped_column(String(20), nullable=False, default=SENSITIVE_ACTION_WARN)
     # 命中片段（截断）：排查时不用翻聊天记录也能看出为什么命中
     snippet: Mapped[str] = mapped_column(String(500), nullable=False, default="")
 

@@ -66,13 +66,9 @@ class HandoffTicket(Base, TimestampMixin):
     agent_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default=TICKET_STATUS_PENDING
-    )
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default=TICKET_STATUS_PENDING)
     reason: Mapped[str] = mapped_column(String(20), nullable=False, default=REASON_USER_REQUEST)
-    requested_by: Mapped[str] = mapped_column(
-        String(20), nullable=False, default=REQUESTED_BY_USER
-    )
+    requested_by: Mapped[str] = mapped_column(String(20), nullable=False, default=REQUESTED_BY_USER)
     note: Mapped[str] = mapped_column(Text, nullable=False, default="")
     # 访客/用户侧的一句话摘要（如"我要退货"），坐席不用点开会话就知道大概
     summary: Mapped[str] = mapped_column(String(200), nullable=False, default="")

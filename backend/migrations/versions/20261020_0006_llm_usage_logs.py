@@ -49,12 +49,8 @@ def upgrade() -> None:
         sa.Column("model", sa.String(100), nullable=False, server_default=""),
         sa.Column("prompt_tokens", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("completion_tokens", sa.Integer(), nullable=False, server_default="0"),
-        sa.Column(
-            "units", sa.Numeric(12, 3), nullable=False, server_default=sa.text("0")
-        ),
-        sa.Column(
-            "cost", sa.Numeric(12, 6), nullable=False, server_default=sa.text("0")
-        ),
+        sa.Column("units", sa.Numeric(12, 3), nullable=False, server_default=sa.text("0")),
+        sa.Column("cost", sa.Numeric(12, 6), nullable=False, server_default=sa.text("0")),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -62,17 +58,11 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
         ),
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(
-            ["conversation_id"], ["conversations.id"], ondelete="SET NULL"
-        ),
+        sa.ForeignKeyConstraint(["conversation_id"], ["conversations.id"], ondelete="SET NULL"),
     )
 
-    op.create_index(
-        "ix_llm_usage_logs_tenant_id_created_at", TABLE, ["tenant_id", "created_at"]
-    )
-    op.create_index(
-        "ix_llm_usage_logs_tenant_id_kind_model", TABLE, ["tenant_id", "kind", "model"]
-    )
+    op.create_index("ix_llm_usage_logs_tenant_id_created_at", TABLE, ["tenant_id", "created_at"])
+    op.create_index("ix_llm_usage_logs_tenant_id_kind_model", TABLE, ["tenant_id", "kind", "model"])
     op.create_index(
         "ix_llm_usage_logs_tenant_id_conversation_id",
         TABLE,

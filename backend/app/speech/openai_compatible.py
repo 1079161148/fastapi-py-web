@@ -171,9 +171,7 @@ def _parse_transcription(response: httpx.Response) -> TranscriptionResult:
             return TranscriptionResult(
                 text=text.strip(),
                 language=language if isinstance(language, str) else None,
-                duration_seconds=(
-                    float(duration) if isinstance(duration, (int, float)) else None
-                ),
+                duration_seconds=(float(duration) if isinstance(duration, (int, float)) else None),
             )
         if isinstance(payload, str):
             return TranscriptionResult(text=payload.strip())

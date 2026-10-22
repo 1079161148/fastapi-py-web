@@ -105,9 +105,7 @@ async def list_documents(
 async def get_document(
     session: AsyncSession, *, tenant_id: uuid.UUID, document_id: uuid.UUID
 ) -> Document:
-    stmt = select(Document).where(
-        Document.id == document_id, Document.tenant_id == tenant_id
-    )
+    stmt = select(Document).where(Document.id == document_id, Document.tenant_id == tenant_id)
     document = (await session.execute(stmt)).scalar_one_or_none()
     if document is None:
         raise NotFoundError("文档")

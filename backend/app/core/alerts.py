@@ -32,9 +32,7 @@ async def _should_send(key: str, window_seconds: int) -> bool:
     """窗口内同 key 只发一次。Redis 异常时返回 True（不漏报优先）。"""
     try:
         redis = await get_redis()
-        return bool(
-            await redis.set(f"alert:dedupe:{key}", "1", ex=window_seconds, nx=True)
-        )
+        return bool(await redis.set(f"alert:dedupe:{key}", "1", ex=window_seconds, nx=True))
     except Exception:  # noqa: BLE001 - 去重失败不能导致告警丢失
         logger.warning("alert_dedupe_unavailable", key=key)
         return True

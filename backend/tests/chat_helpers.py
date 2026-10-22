@@ -39,9 +39,7 @@ class FakeLLM:
         return "".join(self._chunks)
 
 
-async def register_user(
-    client: AsyncClient, email: str, tenant_name: str = "M2 测试租户"
-) -> dict:
+async def register_user(client: AsyncClient, email: str, tenant_name: str = "M2 测试租户") -> dict:
     resp = await client.post(
         "/api/v1/auth/register",
         json={"email": email, "password": PASSWORD, "tenant_name": tenant_name},

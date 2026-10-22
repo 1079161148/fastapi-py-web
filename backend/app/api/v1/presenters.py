@@ -19,8 +19,7 @@ def message_info(message: Message) -> MessageInfo:
     info.audio_url = message_service.audio_url_for(message)
     # 附件要走同一套对外形态：直接 model_validate 会把 storage_key 带出去
     info.attachments = [
-        MessageAttachment.model_validate(item)
-        for item in message_service.attachments_for(message)
+        MessageAttachment.model_validate(item) for item in message_service.attachments_for(message)
     ]
     return info
 

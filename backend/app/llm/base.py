@@ -66,9 +66,7 @@ class LLMNotConfiguredError(AppError):
         super().__init__(
             code="LLM_NOT_CONFIGURED",
             message=(
-                "AI 模型未配置：请在 backend/.env 中设置 "
-                + " / ".join(missing)
-                + " 后重启服务"
+                "AI 模型未配置：请在 backend/.env 中设置 " + " / ".join(missing) + " 后重启服务"
             ),
             status_code=503,
             expose=True,
@@ -115,8 +113,6 @@ class EmbeddingClient(Protocol):
 
 
 class RerankClient(Protocol):
-    async def rerank(
-        self, query: str, documents: Sequence[str], *, top_n: int
-    ) -> list[RerankHit]:
+    async def rerank(self, query: str, documents: Sequence[str], *, top_n: int) -> list[RerankHit]:
         """按相关性重排候选文档，返回降序结果（至少含 top_n 条，不足则全给）。"""
         ...

@@ -86,9 +86,7 @@ class Conversation(Base, TimestampMixin):
         ForeignKey("guest_sessions.guest_id", ondelete="SET NULL"),
         nullable=True,
     )
-    status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default=CONVERSATION_STATUS_AI
-    )
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default=CONVERSATION_STATUS_AI)
     title: Mapped[str] = mapped_column(String(200), nullable=False, default="")
     # 语音回复开关（M5）：会话级配置，避免每轮重复询问
     voice_reply_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -125,9 +123,7 @@ class Message(Base, TimestampMixin):
     content: Mapped[str] = mapped_column(Text, nullable=False, default="")
     # 消息来源渠道：web / email / wechat / dingtalk / voice
     source: Mapped[str] = mapped_column(String(20), nullable=False, default="web")
-    attachments: Mapped[list[dict[str, Any]]] = mapped_column(
-        JSONB, nullable=False, default=list
-    )
+    attachments: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False, default=list)
     # LLM 用量与耗时（成本核算，设计文档 10）
     tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
     latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)

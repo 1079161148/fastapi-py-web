@@ -112,9 +112,7 @@ async def list_conversations(
     has_more = len(rows) > limit
     items = rows[:limit]
     tickets = await _open_tickets_for(session, [item.id for item in items])
-    next_cursor = (
-        encode_cursor(items[-1].updated_at, items[-1].id) if has_more and items else None
-    )
+    next_cursor = encode_cursor(items[-1].updated_at, items[-1].id) if has_more and items else None
     return (
         [AgentConversation(conversation=item, ticket=tickets.get(item.id)) for item in items],
         next_cursor,
@@ -128,13 +126,17 @@ async def _open_tickets_for(
     if not conversation_ids:
         return {}
     rows = (
-        await session.execute(
-            select(HandoffTicket).where(
-                HandoffTicket.conversation_id.in_(conversation_ids),
-                HandoffTicket.status.in_(OPEN_TICKET_STATUSES),
+        (
+            await session.execute(
+                select(HandoffTicket).where(
+                    HandoffTicket.conversation_id.in_(conversation_ids),
+                    HandoffTicket.status.in_(OPEN_TICKET_STATUSES),
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return {row.conversation_id: row for row in rows}
 
 

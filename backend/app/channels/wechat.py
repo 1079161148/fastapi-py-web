@@ -118,9 +118,7 @@ class WechatAdapter:
             raise ChannelPayloadError(self.channel, "XML 解析失败") from exc
 
         if root.find("Encrypt") is not None:
-            raise ChannelPayloadError(
-                self.channel, "当前仅支持明文模式，请在公众平台关闭消息加密"
-            )
+            raise ChannelPayloadError(self.channel, "当前仅支持明文模式，请在公众平台关闭消息加密")
 
         msg_type = (root.findtext("MsgType") or "").strip()
         from_user = (root.findtext("FromUserName") or "").strip()

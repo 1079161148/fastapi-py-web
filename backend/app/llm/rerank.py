@@ -29,9 +29,7 @@ class OpenAIRerankClient:
         self._model = model
         self._timeout = timeout_seconds
 
-    async def rerank(
-        self, query: str, documents: Sequence[str], *, top_n: int
-    ) -> list[RerankHit]:
+    async def rerank(self, query: str, documents: Sequence[str], *, top_n: int) -> list[RerankHit]:
         if not documents:
             return []
 
@@ -59,9 +57,7 @@ class OpenAIRerankClient:
             raise LLMUpstreamError("无法连接重排服务") from exc
 
         if response.status_code >= 400:
-            logger.warning(
-                "rerank_rejected", status=response.status_code, body=response.text[:300]
-            )
+            logger.warning("rerank_rejected", status=response.status_code, body=response.text[:300])
             raise LLMUpstreamError(f"重排服务返回错误（HTTP {response.status_code}）")
 
         return _parse_rerank(response.json(), top_n=top_n)

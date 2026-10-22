@@ -157,9 +157,7 @@ async def test_audio_message_transcribes_and_persists(
     # 服务端按魔数判定 MIME，不采信客户端声明
     assert fake_transcriber.last_mime == "audio/wav"
 
-    history = await client.get(
-        f"/api/v1/conversations/{conversation_id}/messages", headers=headers
-    )
+    history = await client.get(f"/api/v1/conversations/{conversation_id}/messages", headers=headers)
     items = history.json()["items"]
     assert [item["message_type"] for item in items] == ["audio", "text"]
     assert items[0]["content"] == fake_transcriber.text
@@ -186,9 +184,7 @@ async def test_audio_message_rejects_unsupported_format(
     assert error["code"] == "AUDIO_FORMAT_UNSUPPORTED"
     assert fake_transcriber.calls == 0, "格式非法时不应浪费一次转写调用"
 
-    history = await client.get(
-        f"/api/v1/conversations/{conversation_id}/messages", headers=headers
-    )
+    history = await client.get(f"/api/v1/conversations/{conversation_id}/messages", headers=headers)
     assert history.json()["items"] == [], "失败请求不能留下空消息"
 
 
@@ -347,9 +343,7 @@ async def test_voice_reply_enabled_appends_audio_event(
     audio_event = _first(events, "audio")
     assert audio_event["message_id"] == _first(events, "done")["id"]
 
-    history = await client.get(
-        f"/api/v1/conversations/{conversation_id}/messages", headers=headers
-    )
+    history = await client.get(f"/api/v1/conversations/{conversation_id}/messages", headers=headers)
     assistant = history.json()["items"][-1]
     assert assistant["audio_url"], "语音回复要能回看"
     assert (await client.get(assistant["audio_url"])).status_code == 200

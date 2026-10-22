@@ -73,14 +73,12 @@ _TREND_SQL = text(
 async def get_overview(session: AsyncSession) -> StatsOverview:
     tenant_id = require_current_tenant_id()
     row = (
-        await session.execute(
-            _OVERVIEW_SQL, {"tenant_id": tenant_id, "days": WINDOW_DAYS}
-        )
-    ).mappings().one()
-
-    trend_rows = await session.execute(
-        _TREND_SQL, {"tenant_id": tenant_id, "days": WINDOW_DAYS}
+        (await session.execute(_OVERVIEW_SQL, {"tenant_id": tenant_id, "days": WINDOW_DAYS}))
+        .mappings()
+        .one()
     )
+
+    trend_rows = await session.execute(_TREND_SQL, {"tenant_id": tenant_id, "days": WINDOW_DAYS})
     trend = [
         TrendPoint(
             date=str(item["date"]),

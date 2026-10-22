@@ -4,6 +4,7 @@
 历史数据可能是空 dict 或旧结构，直接 .get 取字段会在升级后 KeyError。
 """
 
+import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,16 +13,14 @@ from app.db.models.tenant import Tenant
 from app.schemas.tenant import TenantSettings
 
 
-async def load(session: AsyncSession, tenant_id) -> TenantSettings:
+async def load(session: AsyncSession, tenant_id: uuid.UUID) -> TenantSettings:
     """读取租户配置；不存在或缺字段时返回默认值（即"硬编码时代"的行为）。"""
     tenant = await session.get(Tenant, tenant_id)
     raw = tenant.settings if tenant is not None else {}
     return TenantSettings.model_validate(raw or {})
 
 
-def is_within_work_hours(
-    settings: TenantSettings, *, now: datetime | None = None
-) -> bool:
+def is_within_work_hours(settings: TenantSettings, *, now: datetime | None = None) -> bool:
     """当前是否在工作时间内。
 
     时区统一按 UTC：租户分布在不同时区时应由前端把本地时间换算后

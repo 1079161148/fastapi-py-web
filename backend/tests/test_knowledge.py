@@ -152,9 +152,9 @@ async def test_chat_degrades_when_embedding_missing(
     headers = auth_headers(data["tokens"]["access_token"])
     await create_kb(client, headers)
 
-    conversation_id = (
-        await client.post("/api/v1/conversations", json={}, headers=headers)
-    ).json()["id"]
+    conversation_id = (await client.post("/api/v1/conversations", json={}, headers=headers)).json()[
+        "id"
+    ]
     resp = await client.post(
         f"/api/v1/conversations/{conversation_id}/messages/stream",
         json={"content": "退款多久到账？"},
@@ -189,9 +189,7 @@ async def test_rerank_is_applied(
     _patch_worker_embedder(monkeypatch, fake_embedder)
     await process_document({}, document["id"], tenant_id)
 
-    hits = await client.get(
-        "/api/v1/knowledge/search", params={"q": "退款流程"}, headers=headers
-    )
+    hits = await client.get("/api/v1/knowledge/search", params={"q": "退款流程"}, headers=headers)
     items = hits.json()["items"]
     assert fake_reranker.calls == 1
     assert items and all(item["reranked"] for item in items)
@@ -238,22 +236,16 @@ async def test_knowledge_is_tenant_isolated(
     _patch_worker_embedder(monkeypatch, fake_embedder)
     await process_document({}, document["id"], owner["user"]["tenant_id"])
 
-    other = await register_user(
-        client, f"kb-b-{uuid.uuid4().hex[:8]}@example.com", "知识库租户 B"
-    )
+    other = await register_user(client, f"kb-b-{uuid.uuid4().hex[:8]}@example.com", "知识库租户 B")
     headers_b = auth_headers(other["tokens"]["access_token"])
 
     bases_b = await client.get("/api/v1/knowledge/bases", headers=headers_b)
     assert bases_b.json() == []
 
-    doc_b = await client.get(
-        f"/api/v1/knowledge/documents/{document['id']}", headers=headers_b
-    )
+    doc_b = await client.get(f"/api/v1/knowledge/documents/{document['id']}", headers=headers_b)
     assert doc_b.status_code == 404
 
-    hits_b = await client.get(
-        "/api/v1/knowledge/search", params={"q": "退款"}, headers=headers_b
-    )
+    hits_b = await client.get("/api/v1/knowledge/search", params={"q": "退款"}, headers=headers_b)
     assert hits_b.json()["items"] == []
 
 
@@ -325,14 +317,10 @@ async def test_document_reprocess_and_delete(
     detail = await client.get(f"/api/v1/knowledge/documents/{document['id']}", headers=headers)
     assert detail.json()["status"] == "done"
 
-    deleted = await client.delete(
-        f"/api/v1/knowledge/documents/{document['id']}", headers=headers
-    )
+    deleted = await client.delete(f"/api/v1/knowledge/documents/{document['id']}", headers=headers)
     assert deleted.status_code == 204
 
-    hits = await client.get(
-        "/api/v1/knowledge/search", params={"q": "退款"}, headers=headers
-    )
+    hits = await client.get("/api/v1/knowledge/search", params={"q": "退款"}, headers=headers)
     assert hits.json()["items"] == [], "删除文档必须级联清理 chunks"
 
 

@@ -193,9 +193,7 @@ async def stream_reply(
             )
             # 先取会话：status=human 表示坐席已接管，AI 必须闭嘴（设计文档 5.3）
             conversation = await session.get(Conversation, conversation_id)
-            locked = (
-                conversation is not None and conversation.status == CONVERSATION_STATUS_HUMAN
-            )
+            locked = conversation is not None and conversation.status == CONVERSATION_STATUS_HUMAN
 
             # 敏感词（M9）：block 必须发生在落库之前——
             # 被拦下的内容不该留在会话历史里，否则"拦了等于没拦"
@@ -243,9 +241,7 @@ async def stream_reply(
             if locked:
                 # 用户消息照常落库（坐席要能看到），但不走生成：
                 # 这时再让 AI 插一句会把坐席的回复淹掉
-                async for event in locked_reply_events(
-                    session, tenant_id, conversation_id
-                ):
+                async for event in locked_reply_events(session, tenant_id, conversation_id):
                     yield event
                 return
 
@@ -746,7 +742,8 @@ async def _request_handoff_by_keyword(
             conversation=conversation,
             reason=REASON_KEYWORD,
             requested_by=(
-                REQUESTED_BY_USER if conversation.owner_type == OWNER_TYPE_USER
+                REQUESTED_BY_USER
+                if conversation.owner_type == OWNER_TYPE_USER
                 else REQUESTED_BY_GUEST
             ),
             extra={"keyword": keyword},
@@ -773,7 +770,8 @@ async def _request_handoff_by_sensitive(
             conversation=conversation,
             reason=REASON_KEYWORD,
             requested_by=(
-                REQUESTED_BY_USER if conversation.owner_type == OWNER_TYPE_USER
+                REQUESTED_BY_USER
+                if conversation.owner_type == OWNER_TYPE_USER
                 else REQUESTED_BY_GUEST
             ),
             extra={"keyword": word, "source": "sensitive"},
@@ -838,16 +836,20 @@ async def _build_prompt(
     下一轮仍能把真实对话内容交给模型。
     """
     rows = (
-        await session.execute(
-            select(Message)
-            .where(
-                Message.tenant_id == tenant_id,
-                Message.conversation_id == conversation_id,
+        (
+            await session.execute(
+                select(Message)
+                .where(
+                    Message.tenant_id == tenant_id,
+                    Message.conversation_id == conversation_id,
+                )
+                .order_by(Message.created_at.desc(), Message.id.desc())
+                .limit(history_limit)
             )
-            .order_by(Message.created_at.desc(), Message.id.desc())
-            .limit(history_limit)
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     # 图片消息 content 为空，但必须保留：视觉输入全靠 attachments
     ordered = [

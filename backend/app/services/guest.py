@@ -131,14 +131,18 @@ async def merge_guest(
         return MergeResult(merged_conversations=0, status=MERGE_STATUS_ALREADY_MERGED)
 
     conversations = (
-        await session.execute(
-            select(Conversation).where(
-                Conversation.tenant_id == user.tenant_id,
-                Conversation.guest_id == guest_id,
-                Conversation.owner_type == OWNER_TYPE_GUEST,
+        (
+            await session.execute(
+                select(Conversation).where(
+                    Conversation.tenant_id == user.tenant_id,
+                    Conversation.guest_id == guest_id,
+                    Conversation.owner_type == OWNER_TYPE_GUEST,
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     now = datetime.now(UTC)
     for conversation in conversations:

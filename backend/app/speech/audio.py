@@ -97,9 +97,7 @@ def inspect_audio(
 ) -> AudioInfo:
     """校验并返回音频元信息；任何不合规都抛 AppError（带可操作提示）。"""
     if not data:
-        raise AppError(
-            code="AUDIO_EMPTY", message="录音内容为空，请重新录制", status_code=422
-        )
+        raise AppError(code="AUDIO_EMPTY", message="录音内容为空，请重新录制", status_code=422)
     if len(data) > max_bytes:
         raise AppError(
             code="AUDIO_TOO_LARGE",

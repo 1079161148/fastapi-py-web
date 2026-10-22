@@ -112,9 +112,7 @@ def upgrade() -> None:
     op.create_index(
         "ix_sensitive_hits_tenant_id_created_at", "sensitive_hits", ["tenant_id", "created_at"]
     )
-    op.create_index(
-        "ix_sensitive_hits_tenant_id_action", "sensitive_hits", ["tenant_id", "action"]
-    )
+    op.create_index("ix_sensitive_hits_tenant_id_action", "sensitive_hits", ["tenant_id", "action"])
 
     for table in ("quality_reviews", "sensitive_hits"):
         op.execute(f"GRANT USAGE ON SCHEMA public TO {APP_ROLE}")

@@ -96,9 +96,7 @@ async def create_conversation(
     return conversation
 
 
-async def _maybe_sample_for_quality(
-    session: AsyncSession, conversation: Conversation
-) -> None:
+async def _maybe_sample_for_quality(session: AsyncSession, conversation: Conversation) -> None:
     """按租户配置的比例把新会话送进质检队列（M9）。
 
     抽样失败绝不能让会话创建失败：用户只是想开个对话，
@@ -145,9 +143,7 @@ async def list_conversations(
     rows = list((await session.execute(stmt)).scalars().all())
     has_more = len(rows) > limit
     items = rows[:limit]
-    next_cursor = (
-        encode_cursor(items[-1].updated_at, items[-1].id) if has_more and items else None
-    )
+    next_cursor = encode_cursor(items[-1].updated_at, items[-1].id) if has_more and items else None
     return items, next_cursor
 
 
@@ -160,9 +156,7 @@ async def update_conversation(
     status: str | None = None,
     voice_reply_enabled: bool | None = None,
 ) -> Conversation:
-    conversation = await get_conversation(
-        session, owner=owner, conversation_id=conversation_id
-    )
+    conversation = await get_conversation(session, owner=owner, conversation_id=conversation_id)
     if title is not None:
         conversation.title = title
     if status is not None:

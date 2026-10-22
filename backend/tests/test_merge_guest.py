@@ -25,9 +25,9 @@ async def _guest_conversation_with_reply(
     """造一段访客对话，返回 (guest_id, conversation_id)。"""
     guest_id = await ensure_guest_session(client, tenant_id)
     headers = tenant_headers(tenant_id)
-    conversation_id = (
-        await client.post("/api/v1/conversations", json={}, headers=headers)
-    ).json()["id"]
+    conversation_id = (await client.post("/api/v1/conversations", json={}, headers=headers)).json()[
+        "id"
+    ]
     resp = await client.post(
         f"/api/v1/conversations/{conversation_id}/messages/stream",
         json={"content": content},
@@ -99,9 +99,7 @@ async def test_merge_transfers_ownership_and_is_idempotent(
     assert replay.json() == {"merged_conversations": 0, "status": "already_merged"}
 
     # 原 guest cookie 已清除，访客身份不再可用
-    current = await client.get(
-        "/api/v1/guest/sessions/current", headers=tenant_headers(tenant_id)
-    )
+    current = await client.get("/api/v1/guest/sessions/current", headers=tenant_headers(tenant_id))
     assert current.json()["guest_id"] is None
 
 

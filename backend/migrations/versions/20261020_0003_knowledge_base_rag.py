@@ -149,8 +149,7 @@ def upgrade() -> None:
     # HNSW：pgvector 的近似最近邻索引，余弦距离。
     # 不用 SQLAlchemy Index 表达（方言不支持 USING hnsw），直接写 DDL。
     op.execute(
-        "CREATE INDEX ix_chunks_embedding_hnsw ON chunks "
-        "USING hnsw (embedding vector_cosine_ops)"
+        "CREATE INDEX ix_chunks_embedding_hnsw ON chunks USING hnsw (embedding vector_cosine_ops)"
     )
 
     op.execute(f"GRANT USAGE ON SCHEMA public TO {APP_ROLE}")

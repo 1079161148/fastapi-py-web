@@ -212,9 +212,7 @@ async def claim_ticket(
             ),
         ]
     )
-    logger.info(
-        "handoff_claimed", ticket_id=str(ticket.id), agent_id=str(agent_id)
-    )
+    logger.info("handoff_claimed", ticket_id=str(ticket.id), agent_id=str(agent_id))
     return ticket
 
 
@@ -354,9 +352,7 @@ async def list_tickets(
     rows = list((await session.execute(stmt)).scalars().all())
     has_more = len(rows) > limit
     items = rows[:limit]
-    next_cursor = (
-        encode_cursor(items[-1].created_at, items[-1].id) if has_more and items else None
-    )
+    next_cursor = encode_cursor(items[-1].created_at, items[-1].id) if has_more and items else None
     return items, next_cursor
 
 

@@ -30,9 +30,7 @@ class QuickReplyUpdate(BaseModel):
 
     title: str | None = Field(default=None, min_length=1, max_length=100)
     content: str | None = Field(default=None, min_length=1, max_length=2000)
-    category: str | None = Field(
-        default=None, pattern=f"^({'|'.join(QUICK_REPLY_CATEGORIES)})$"
-    )
+    category: str | None = Field(default=None, pattern=f"^({'|'.join(QUICK_REPLY_CATEGORIES)})$")
     sort_order: int | None = Field(default=None, ge=0, le=9999)
 
 

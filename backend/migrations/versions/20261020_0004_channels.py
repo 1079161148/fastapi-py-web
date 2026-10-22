@@ -71,9 +71,7 @@ def upgrade() -> None:
         sa.Column("channel", sa.String(20), nullable=False),
         # 平台侧账号标识：微信填公众号原始 ID（gh_xxx）、钉钉填 robotCode/corpId、
         # 邮件填收件邮箱。入站靠它反查租户，因此同一渠道内必须唯一
-        sa.Column(
-            "external_account_id", sa.String(200), nullable=False, server_default=""
-        ),
+        sa.Column("external_account_id", sa.String(200), nullable=False, server_default=""),
         sa.Column("enabled", sa.Boolean(), nullable=False, server_default=sa.text("true")),
         # 只放非敏感配置（AppID、邮箱地址等）；AppSecret / 密码等仍走环境变量
         sa.Column("credentials", JSONB(), nullable=False, server_default=sa.text("'{}'::jsonb")),
@@ -122,9 +120,7 @@ def upgrade() -> None:
         sa.Column("external_user_id", sa.String(255), nullable=False, server_default=""),
         sa.Column("content", sa.Text(), nullable=False, server_default=""),
         # 出站上下文（钉钉 sessionWebhook、邮件主题）：跨进程投递必须持久化
-        sa.Column(
-            "reply_context", JSONB(), nullable=False, server_default=sa.text("'{}'::jsonb")
-        ),
+        sa.Column("reply_context", JSONB(), nullable=False, server_default=sa.text("'{}'::jsonb")),
         sa.Column("error_msg", sa.String(500), nullable=False, server_default=""),
         sa.Column(
             "created_at",
@@ -183,9 +179,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
         ),
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(
-            ["guest_id"], ["guest_sessions.guest_id"], ondelete="SET NULL"
-        ),
+        sa.ForeignKeyConstraint(["guest_id"], ["guest_sessions.guest_id"], ondelete="SET NULL"),
         sa.UniqueConstraint(
             "tenant_id",
             "channel",
@@ -252,9 +246,7 @@ def upgrade() -> None:
         $$
         """
     )
-    op.execute(
-        "REVOKE ALL ON FUNCTION channel_tenant(text, text) FROM PUBLIC"
-    )
+    op.execute("REVOKE ALL ON FUNCTION channel_tenant(text, text) FROM PUBLIC")
     op.execute("REVOKE ALL ON FUNCTION channel_accounts(text) FROM PUBLIC")
     op.execute(f"GRANT EXECUTE ON FUNCTION channel_tenant(text, text) TO {APP_ROLE}")
     op.execute(f"GRANT EXECUTE ON FUNCTION channel_accounts(text) TO {APP_ROLE}")

@@ -134,9 +134,7 @@ async def update_member_role(
     current_user: User = Depends(get_current_user),
     _admin: TenantMember = Depends(require_tenant_admin),
 ) -> TenantMemberInfo:
-    result = await tenant_service.update_member_role(
-        session, user_id=user_id, role=payload.role
-    )
+    result = await tenant_service.update_member_role(session, user_id=user_id, role=payload.role)
     await audit_service.record(
         session,
         action=audit_service.ACTION_MEMBER_ROLE,
@@ -157,9 +155,7 @@ async def remove_member(
     current_user: User = Depends(get_current_user),
     _admin: TenantMember = Depends(require_tenant_admin),
 ) -> None:
-    await tenant_service.remove_member(
-        session, user_id=user_id, current_user_id=current_user.id
-    )
+    await tenant_service.remove_member(session, user_id=user_id, current_user_id=current_user.id)
     await audit_service.record(
         session,
         action=audit_service.ACTION_MEMBER_REMOVE,

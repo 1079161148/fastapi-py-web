@@ -53,9 +53,7 @@ async def test_wechat_send_failure_surfaces_platform_error(monkeypatch) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path.endswith("/cgi-bin/token"):
             return httpx.Response(200, json={"access_token": "t", "expires_in": 7200})
-        return httpx.Response(
-            200, json={"errcode": 45015, "errmsg": "response out of time limit"}
-        )
+        return httpx.Response(200, json={"errcode": 45015, "errmsg": "response out of time limit"})
 
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as http_client:

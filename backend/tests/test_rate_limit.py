@@ -42,9 +42,7 @@ async def test_chat_rate_limited_per_user(
     tenant_id = data["user"]["tenant_id"]
     headers = {**auth_headers(token), **tenant_headers(tenant_id)}
 
-    conversation_id = await _create_conversation(
-        client, headers=headers, tenant_id=tenant_id
-    )
+    conversation_id = await _create_conversation(client, headers=headers, tenant_id=tenant_id)
     first = await client.post(
         f"/api/v1/conversations/{conversation_id}/messages/stream",
         json={"content": "第一问"},
@@ -96,9 +94,7 @@ async def test_rate_limit_disabled_counts_nothing(
     tenant_id = data["user"]["tenant_id"]
     headers = {**auth_headers(token), **tenant_headers(tenant_id)}
 
-    conversation_id = await _create_conversation(
-        client, headers=headers, tenant_id=tenant_id
-    )
+    conversation_id = await _create_conversation(client, headers=headers, tenant_id=tenant_id)
     for content in ("第一问", "第二问"):
         resp = await client.post(
             f"/api/v1/conversations/{conversation_id}/messages/stream",

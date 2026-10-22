@@ -78,9 +78,7 @@ def _wechat_xml(*, account: str, msg_id: str, content: str = "退款多久到账
 def _wechat_query(*, token: str = "wechat-test-token") -> dict[str, str]:
     timestamp = str(int(time.time()))
     nonce = "nonce-123"
-    signature = hashlib.sha1(
-        "".join(sorted([token, timestamp, nonce])).encode("utf-8")
-    ).hexdigest()
+    signature = hashlib.sha1("".join(sorted([token, timestamp, nonce])).encode("utf-8")).hexdigest()
     return {"signature": signature, "timestamp": timestamp, "nonce": nonce}
 
 
@@ -229,9 +227,7 @@ async def test_channel_config_management_and_permissions(
         )
         session.add(agent)
         await session.flush()
-        session.add(
-            TenantMember(tenant_id=uuid.UUID(tenant_id), user_id=agent.id, role="agent")
-        )
+        session.add(TenantMember(tenant_id=uuid.UUID(tenant_id), user_id=agent.id, role="agent"))
         await session.commit()
     set_current_tenant(None)
 
@@ -256,9 +252,7 @@ async def test_wechat_webhook_is_idempotent(
     """平台重推同一条消息只能产生一次回复（设计文档 9.1 的核心约束）。"""
     _configure_wechat(monkeypatch)
     headers, tenant_id = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers, "wechat", enabled=True, external_account_id=wechat_account)
 
     body = _wechat_xml(account=wechat_account, msg_id="10001")
     query = _wechat_query()
@@ -276,13 +270,17 @@ async def test_wechat_webhook_is_idempotent(
     try:
         async with async_session_factory() as session:
             rows = (
-                await session.execute(
-                    select(ChannelMessage).where(
-                        ChannelMessage.tenant_id == uuid.UUID(tenant_id),
-                        ChannelMessage.channel == CHANNEL_WECHAT,
+                (
+                    await session.execute(
+                        select(ChannelMessage).where(
+                            ChannelMessage.tenant_id == uuid.UUID(tenant_id),
+                            ChannelMessage.channel == CHANNEL_WECHAT,
+                        )
                     )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
     finally:
         set_current_tenant(None)
 
@@ -300,9 +298,7 @@ async def test_wechat_webhook_rejects_bad_signature(
 ) -> None:
     _configure_wechat(monkeypatch)
     headers, _ = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers, "wechat", enabled=True, external_account_id=wechat_account)
 
     query = _wechat_query()
     query["signature"] = "0" * 40
@@ -325,9 +321,7 @@ async def test_webhook_unknown_account_is_404(
 ) -> None:
     _configure_wechat(monkeypatch)
     headers, _ = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers, "wechat", enabled=True, external_account_id=wechat_account)
 
     resp = await client.post(
         "/api/v1/channels/wechat/webhook",
@@ -347,9 +341,7 @@ async def test_wechat_get_verification_echoes_challenge(
     """公众平台配置回调地址时用 GET + echostr 验证归属。"""
     _configure_wechat(monkeypatch)
     headers, _ = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers, "wechat", enabled=True, external_account_id=wechat_account)
 
     query = _wechat_query()
     query.update({"account": wechat_account, "echostr": "echo-ok"})
@@ -419,9 +411,7 @@ async def test_worker_generates_reply_and_delivers(
     """worker 全链路：生成（复用对话编排）→ 投递 → 入/出站流水都置 replied。"""
     _configure_wechat(monkeypatch)
     headers, tenant_id = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers, "wechat", enabled=True, external_account_id=wechat_account)
     assert (
         await client.post(
             "/api/v1/channels/wechat/webhook",
@@ -433,9 +423,7 @@ async def test_worker_generates_reply_and_delivers(
     router = RecordingRouter()
     monkeypatch.setattr("app.workers.channel_tasks.ChannelRouter", lambda: router)
     monkeypatch.setattr("app.workers.channel_tasks.get_llm_client", lambda: fake_llm)
-    monkeypatch.setattr(
-        "app.workers.channel_tasks.get_embedding_client", lambda: fake_embedder
-    )
+    monkeypatch.setattr("app.workers.channel_tasks.get_embedding_client", lambda: fake_embedder)
     monkeypatch.setattr("app.workers.channel_tasks.get_rerank_client", lambda: None)
 
     await process_channel_inbound({}, tenant_id, CHANNEL_WECHAT, "20001")
@@ -453,12 +441,14 @@ async def test_worker_generates_reply_and_delivers(
     try:
         async with async_session_factory() as session:
             messages = (
-                await session.execute(
-                    select(Message).where(
-                        Message.conversation_id == record.conversation_id
+                (
+                    await session.execute(
+                        select(Message).where(Message.conversation_id == record.conversation_id)
                     )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             outbound = (
                 await session.execute(
                     select(ChannelMessage).where(
@@ -490,9 +480,7 @@ async def test_worker_retry_only_resends_after_generation_succeeded(
     """投递失败后重试：只重投已生成的回复，不重新调用模型（省额度）。"""
     _configure_wechat(monkeypatch)
     headers, tenant_id = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers, "wechat", enabled=True, external_account_id=wechat_account)
     await client.post(
         "/api/v1/channels/wechat/webhook",
         params=_wechat_query(),
@@ -510,8 +498,14 @@ async def test_worker_retry_only_resends_after_generation_succeeded(
         content: str,
         reply_context: Mapping[str, str] | None = None,
     ) -> str | None:
-        sent.append(OutboundMessage(channel=channel, conversation_id=conversation_id,
-                                    external_user_id=external_user_id, content=content))
+        sent.append(
+            OutboundMessage(
+                channel=channel,
+                conversation_id=conversation_id,
+                external_user_id=external_user_id,
+                content=content,
+            )
+        )
         raise ChannelSendError(CHANNEL_WECHAT, "服务端 45015 窗口关闭")
 
     router.deliver = fail_deliver  # type: ignore[method-assign]
@@ -533,8 +527,14 @@ async def test_worker_retry_only_resends_after_generation_succeeded(
         content: str,
         reply_context: Mapping[str, str] | None = None,
     ) -> str | None:
-        sent.append(OutboundMessage(channel=channel, conversation_id=conversation_id,
-                                    external_user_id=external_user_id, content=content))
+        sent.append(
+            OutboundMessage(
+                channel=channel,
+                conversation_id=conversation_id,
+                external_user_id=external_user_id,
+                content=content,
+            )
+        )
         return "platform-msg-2"
 
     router.deliver = succeed  # type: ignore[method-assign]
@@ -606,13 +606,17 @@ async def test_email_webhook_requires_shared_secret(
     try:
         async with async_session_factory() as session:
             identities = (
-                await session.execute(
-                    select(ChannelIdentity).where(
-                        ChannelIdentity.tenant_id == uuid.UUID(tenant_id),
-                        ChannelIdentity.channel == CHANNEL_EMAIL,
+                (
+                    await session.execute(
+                        select(ChannelIdentity).where(
+                            ChannelIdentity.tenant_id == uuid.UUID(tenant_id),
+                            ChannelIdentity.channel == CHANNEL_EMAIL,
+                        )
                     )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
     finally:
         set_current_tenant(None)
 
@@ -626,13 +630,9 @@ async def test_channel_account_is_bound_to_single_tenant(
 ) -> None:
     """同一公众号只能绑定一个租户：否则入站无法唯一确定租户。"""
     headers_a, _ = await _setup_tenant(client, unique_email)
-    await _put_config(
-        client, headers_a, "wechat", enabled=True, external_account_id=wechat_account
-    )
+    await _put_config(client, headers_a, "wechat", enabled=True, external_account_id=wechat_account)
 
-    other = await register_user(
-        client, f"ch-b-{uuid.uuid4().hex[:8]}@example.com", "M4 渠道租户 B"
-    )
+    other = await register_user(client, f"ch-b-{uuid.uuid4().hex[:8]}@example.com", "M4 渠道租户 B")
     resp = await client.put(
         "/api/v1/channels/wechat",
         json={"enabled": True, "external_account_id": wechat_account},

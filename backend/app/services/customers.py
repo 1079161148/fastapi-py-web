@@ -79,9 +79,7 @@ async def list_customers(
     items = []
     for row in rows.mappings():
         is_user = row["owner_type"] == "user"
-        fallback_name = (
-            row["display_name"] if is_user else f"访客-{str(row['owner_id'])[:8]}"
-        )
+        fallback_name = row["display_name"] if is_user else f"访客-{str(row['owner_id'])[:8]}"
         items.append(
             CustomerInfo(
                 owner_type=row["owner_type"],
@@ -89,9 +87,7 @@ async def list_customers(
                 display_name=row["display_name"] or fallback_name,
                 email=row["email"],
                 conversation_count=row["conversation_count"],
-                last_active_at=row["last_active_at"].isoformat()
-                if row["last_active_at"]
-                else None,
+                last_active_at=row["last_active_at"].isoformat() if row["last_active_at"] else None,
                 last_conversation_status=row["last_conversation_status"] or "",
                 total_ratings=row["total_ratings"] or 0,
                 avg_rating=round(float(row["avg_rating"]), 2) if row["avg_rating"] else None,

@@ -25,9 +25,7 @@ class ChannelRouter:
         self._http_client = http_client
 
     def adapter_for(self, channel: str, *, webhook_secret: str = "") -> ChannelAdapter:
-        return build_adapter(
-            channel, webhook_secret=webhook_secret, http_client=self._http_client
-        )
+        return build_adapter(channel, webhook_secret=webhook_secret, http_client=self._http_client)
 
     async def deliver(
         self,

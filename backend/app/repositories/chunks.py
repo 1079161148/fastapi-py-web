@@ -76,10 +76,7 @@ class PgVectorChunkRepository:
             .limit(limit)
         )
         rows = (await self._session.execute(stmt)).all()
-        return [
-            _to_hit(chunk, filename, score=1.0 - float(dist))
-            for chunk, filename, dist in rows
-        ]
+        return [_to_hit(chunk, filename, score=1.0 - float(dist)) for chunk, filename, dist in rows]
 
     async def keyword_search(
         self,

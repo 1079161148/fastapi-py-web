@@ -62,14 +62,10 @@ async def synthesize_message(
         )
 
     cached = voice_service.find_audio_attachment(message) is not None
-    attachment = await voice_service.synthesize_for_message(
-        session, message=message, speech=speech
-    )
+    attachment = await voice_service.synthesize_for_message(session, message=message, speech=speech)
     return SpeechSynthesisResult(
         message_id=message.id,
-        audio_url=voice_service.audio_url(
-            message_id=message.id, tenant_id=message.tenant_id
-        ),
+        audio_url=voice_service.audio_url(message_id=message.id, tenant_id=message.tenant_id),
         mime_type=str(attachment.get("mime_type") or "audio/mpeg"),
         duration_seconds=_as_float(attachment.get("duration_seconds")),
         cached=cached,
@@ -146,9 +142,7 @@ async def download_audio(
     try:
         message = await session.get(Message, message_id)
         if message is None or message.tenant_id != tenant_id:
-            raise AppError(
-                code="AUDIO_NOT_FOUND", message="语音内容不存在", status_code=404
-            )
+            raise AppError(code="AUDIO_NOT_FOUND", message="语音内容不存在", status_code=404)
         data, media_type = await voice_service.read_audio(message)
     finally:
         set_current_tenant(None)

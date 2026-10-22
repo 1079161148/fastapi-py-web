@@ -99,9 +99,7 @@ async def resolve_tenant_id(
     return uuid.UUID(str(value))
 
 
-async def list_channel_accounts(
-    session: AsyncSession, channel: str
-) -> list[tuple[uuid.UUID, str]]:
+async def list_channel_accounts(session: AsyncSession, channel: str) -> list[tuple[uuid.UUID, str]]:
     """列出某渠道所有启用的 (租户, 外部账号)，供邮件轮询使用。"""
     table = func.channel_accounts(channel).table_valued("tenant_id", "external_account_id")
     rows = await session.execute(select(table.c.tenant_id, table.c.external_account_id))
@@ -131,9 +129,7 @@ async def find_config(
     ).scalar_one_or_none()
 
 
-async def get_config(
-    session: AsyncSession, *, tenant_id: uuid.UUID, channel: str
-) -> ChannelConfig:
+async def get_config(session: AsyncSession, *, tenant_id: uuid.UUID, channel: str) -> ChannelConfig:
     config = await find_config(session, tenant_id=tenant_id, channel=channel)
     if config is None:
         raise NotFoundError("渠道配置")
@@ -258,9 +254,7 @@ async def intake(
         existing = await load_message(
             session, tenant_id=tenant_id, channel=channel, external_msg_id=external_msg_id
         )
-        logger.info(
-            "channel_inbound_duplicate", channel=channel, external_msg_id=external_msg_id
-        )
+        logger.info("channel_inbound_duplicate", channel=channel, external_msg_id=external_msg_id)
         # 返回原记录状态而不是固定的 "duplicate"：平台重推 + 上次失败时
         # 调用方需要能重新入队重试，否则这条消息就永久卡在 failed 上
         return IntakeResult(
@@ -286,9 +280,7 @@ async def intake(
             reason=f"暂不支持的消息类型：{inbound.message_type}",
         )
 
-    identity = await ensure_identity(
-        session, tenant_id=tenant_id, channel=channel, inbound=inbound
-    )
+    identity = await ensure_identity(session, tenant_id=tenant_id, channel=channel, inbound=inbound)
     conversation = await find_or_create_conversation(
         session,
         tenant_id=tenant_id,
@@ -303,9 +295,7 @@ async def intake(
         .values(conversation_id=conversation.id)
     )
     await session.commit()
-    return IntakeResult(
-        status=MSG_STATUS_RECEIVED, conversation_id=conversation.id, created=True
-    )
+    return IntakeResult(status=MSG_STATUS_RECEIVED, conversation_id=conversation.id, created=True)
 
 
 async def ensure_identity(
@@ -334,9 +324,7 @@ async def ensure_identity(
                 guest_id=guest.guest_id,
                 display_name=inbound.display_name[:200],
             )
-            .on_conflict_do_nothing(
-                index_elements=["tenant_id", "channel", "external_user_id"]
-            )
+            .on_conflict_do_nothing(index_elements=["tenant_id", "channel", "external_user_id"])
         )
         await session.commit()
         identity = (

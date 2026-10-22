@@ -19,9 +19,7 @@ def _username(prefix: str = "u") -> str:
 
 
 async def _slug_of(client: AsyncClient, access_token: str) -> str:
-    resp = await client.get(
-        "/api/v1/tenants/current", headers=auth_headers(access_token)
-    )
+    resp = await client.get("/api/v1/tenants/current", headers=auth_headers(access_token))
     assert resp.status_code == 200, resp.text
     return str(resp.json()["slug"])
 
@@ -43,9 +41,7 @@ async def _register(
     return data, await _slug_of(client, data["tokens"]["access_token"])
 
 
-async def test_login_by_username_with_tenant(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_login_by_username_with_tenant(client: AsyncClient, unique_email: str) -> None:
     username = _username()
     data, slug = await _register(
         client, email=unique_email, username=username, tenant_name="用户名租户"
@@ -67,9 +63,7 @@ async def test_login_by_username_with_tenant(
     assert by_email.json()["user"]["id"] == by_name.json()["user"]["id"]
 
 
-async def test_username_login_requires_tenant(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_username_login_requires_tenant(client: AsyncClient, unique_email: str) -> None:
     username = _username()
     await _register(client, email=unique_email, username=username, tenant_name="缺租户")
 
@@ -80,9 +74,7 @@ async def test_username_login_requires_tenant(
     assert missing.json()["code"] == "TENANT_REQUIRED"
 
 
-async def test_wrong_tenant_slug_is_generic_401(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_wrong_tenant_slug_is_generic_401(client: AsyncClient, unique_email: str) -> None:
     username = _username()
     await _register(client, email=unique_email, username=username, tenant_name="错租户")
 
@@ -129,9 +121,7 @@ async def test_same_username_allowed_in_different_tenants(
     assert login_b.json()["user"]["email"] == email_b
     # 两个账号确实是不同的人（不同 user_id / tenant_id）
     assert login_a.json()["user"]["id"] != login_b.json()["user"]["id"]
-    assert (
-        data_a["user"]["tenant_id"] != data_b["user"]["tenant_id"]
-    )
+    assert data_a["user"]["tenant_id"] != data_b["user"]["tenant_id"]
 
 
 async def test_duplicate_username_in_same_tenant_rejected(
@@ -183,9 +173,7 @@ async def test_username_is_case_insensitive(client: AsyncClient, unique_email: s
         assert resp.status_code == 200, f"{candidate} 登录失败：{resp.text}"
 
 
-async def test_invalid_username_format_rejected(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_invalid_username_format_rejected(client: AsyncClient, unique_email: str) -> None:
     for bad in ("ab", "a" * 33, "has space", "has@sign", "中文名"):
         resp = await client.post(
             "/api/v1/auth/register",
@@ -218,13 +206,9 @@ async def test_register_without_username_keeps_email_only(
     assert by_bogus.json()["code"] == "TENANT_REQUIRED"
 
 
-async def test_username_wrong_password_is_generic(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_username_wrong_password_is_generic(client: AsyncClient, unique_email: str) -> None:
     username = _username()
-    _, slug = await _register(
-        client, email=unique_email, username=username, tenant_name="密码租户"
-    )
+    _, slug = await _register(client, email=unique_email, username=username, tenant_name="密码租户")
     resp = await client.post(
         "/api/v1/auth/login",
         json={"identifier": username, "tenant": slug, "password": "wrong-password"},

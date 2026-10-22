@@ -339,11 +339,16 @@ class LLMClient(Protocol):
 | 渠道 | `channel_messages` | tenant_id, channel, external_msg_id, conversation_id, direction | 唯一键 `(tenant_id, channel, external_msg_id)` 做幂等去重 |
 | 知识库 | `knowledge_bases` | id, tenant_id, name, description | |
 | 知识库 | `documents` | id, kb_id, filename, object_key, status, error_msg | 入库状态机；原件存对象存储 |
-| 知识库 | `chunks` | id, document_id, tenant_id, content, embedding(vector), tsv(tsvector), chunk_strategy, metadata | 向量 HNSW + 关键词 GIN 双索引 |
+| 知识库 | `chunks` | id, document_id, tenant_id, content, embedding(vector(2048)), tsv(tsvector), chunk_strategy, metadata | 关键词 GIN 双索引（向量侧为精确扫描，见下） |
 | 运营 | `handoff_tickets` | id, tenant_id, conversation_id, agent_id, status, reason | 转人工工单 |
 | 运营 | `llm_usage_logs` | id, tenant_id, model, prompt_tokens, completion_tokens, cost, conversation_id | 成本核算，按租户聚合 |
 
-检索策略见 9.4：向量（HNSW）与关键词（GIN tsvector）双路召回后 RRF 融合，按 `tenant_id` + `kb_id` 过滤。
+检索策略见 9.4：向量与关键词（GIN tsvector）双路召回后 RRF 融合，按 `tenant_id` + `kb_id` 过滤。
+
+> **2026-10-22 修正（迁移 0012）**：实际嵌入模型输出 2048 维，而 pgvector 的 ANN 索引
+> （hnsw / ivfflat）上限 2000 维，因此向量侧**无法建 ANN 索引**，当前为精确最近邻
+> （顺序扫描 + 排序）。数千 chunk 量级下单次查询毫秒级，可接受；到十万级 chunk 必须
+> 换成 ≤2000 维的嵌入模型重新建 hnsw，或升级 pgvector 使用 halfvec(2048) 建索引。
 
 ---
 
@@ -473,7 +478,7 @@ class ChannelAdapter(Protocol):
 
 ```
 查询 → 分块/向量化（离线）
-     → 向量召回 top-50（pgvector HNSW）
+     → 向量召回 top-50（pgvector，2048 维精确最近邻）
      → 关键词召回 top-50（PostgreSQL tsvector + GIN）
      → RRF 融合去重
      → rerank 模型重排（未配置则跳过）

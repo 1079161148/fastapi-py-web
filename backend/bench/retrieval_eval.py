@@ -86,9 +86,7 @@ def main() -> None:
     )
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--kb-id", default="", help="只评估指定知识库（默认全部）")
-    parser.add_argument(
-        "--min-recall", type=float, default=0.0, help="低于该 recall 时退出码 1"
-    )
+    parser.add_argument("--min-recall", type=float, default=0.0, help="低于该 recall 时退出码 1")
     args = parser.parse_args()
 
     cases = load_dataset(Path(args.dataset))

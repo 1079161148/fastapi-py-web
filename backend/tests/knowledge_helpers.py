@@ -60,9 +60,7 @@ class FakeReranker:
     def __init__(self) -> None:
         self.calls = 0
 
-    async def rerank(
-        self, query: str, documents: Sequence[str], *, top_n: int
-    ) -> list[RerankHit]:
+    async def rerank(self, query: str, documents: Sequence[str], *, top_n: int) -> list[RerankHit]:
         self.calls += 1
         indexes = list(range(len(documents)))[::-1]
         return [
@@ -79,9 +77,7 @@ class FakeQueue:
         self.jobs.append((function, args, kwargs))
 
 
-async def create_kb(
-    client: AsyncClient, headers: dict[str, str], name: str = "客服知识库"
-) -> dict:
+async def create_kb(client: AsyncClient, headers: dict[str, str], name: str = "客服知识库") -> dict:
     resp = await client.post(
         "/api/v1/knowledge/bases",
         json={"name": name, "description": "M3 测试库", "chunk_strategy": "by_heading"},

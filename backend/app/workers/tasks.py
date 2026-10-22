@@ -74,9 +74,7 @@ async def process_document(ctx: dict[str, Any], document_id: str, tenant_id: str
             )
 
             await session.execute(
-                delete(Chunk).where(
-                    Chunk.tenant_id == tenant_uuid, Chunk.document_id == doc_uuid
-                )
+                delete(Chunk).where(Chunk.tenant_id == tenant_uuid, Chunk.document_id == doc_uuid)
             )
             session.add_all(
                 [

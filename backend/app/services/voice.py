@@ -150,9 +150,7 @@ async def read_audio(message: Message) -> tuple[bytes, str]:
     """读取消息音频内容（播放端点用）。缺失即 404，不返回空 body。"""
     attachment = find_audio_attachment(message)
     if attachment is None:
-        raise AppError(
-            code="AUDIO_NOT_FOUND", message="该消息没有语音内容", status_code=404
-        )
+        raise AppError(code="AUDIO_NOT_FOUND", message="该消息没有语音内容", status_code=404)
 
     object_key = str(attachment.get("object_key") or "")
     if not object_key:

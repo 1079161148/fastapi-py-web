@@ -16,9 +16,7 @@ os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-use-only-in-
 # 限流的专项用例在 tests/test_rate_limit.py 里显式打开。
 os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 # 上传文件落系统临时目录：测试不应把产物写进仓库（backend/var 已在 .gitignore）
-os.environ.setdefault(
-    "STORAGE_LOCAL_DIR", str(Path(tempfile.gettempdir()) / "aics-test-uploads")
-)
+os.environ.setdefault("STORAGE_LOCAL_DIR", str(Path(tempfile.gettempdir()) / "aics-test-uploads"))
 
 import asyncio
 import uuid

@@ -105,9 +105,7 @@ async def search(
     try:
         vectors = await embedder.embed([query])
     except AppError as exc:
-        logger.warning(
-            "embedding_failed_keyword_only", code=exc.code, tenant_id=str(tenant_id)
-        )
+        logger.warning("embedding_failed_keyword_only", code=exc.code, tenant_id=str(tenant_id))
         degraded = True
         reason = f"向量检索不可用（{exc.code}），本次结果仅来自关键词检索"
         # None = 调用失败（上方已记日志）；[] = 调用成功但返回空，单独记日志
@@ -159,9 +157,7 @@ async def search(
     pool = fused[:pool_size]
     documents = [item.hit.content for item in pool]
     try:
-        rerank_hits = await reranker.rerank(
-            query, documents, top_n=min(limit, pool_size)
-        )
+        rerank_hits = await reranker.rerank(query, documents, top_n=min(limit, pool_size))
     except AppError as exc:
         # 可选能力失败不影响回答：按融合顺序返回，并记录以便观测
         logger.warning("rerank_failed_degrade", code=exc.code, pool=pool_size)
@@ -231,9 +227,7 @@ async def retrieve_for_chat(
         if result.degraded:
             return RetrievalOutcome(degraded=True, reason=result.reason)
         return RetrievalOutcome(reason="未检索到相关资料")
-    return RetrievalOutcome(
-        items=result.items, degraded=result.degraded, reason=result.reason
-    )
+    return RetrievalOutcome(items=result.items, degraded=result.degraded, reason=result.reason)
 
 
 @dataclass(frozen=True, slots=True)

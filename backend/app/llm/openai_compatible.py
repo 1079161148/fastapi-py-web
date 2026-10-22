@@ -89,8 +89,7 @@ class OpenAICompatibleClient:
                         body=body[:ERROR_BODY_LIMIT],
                     )
                     raise LLMUpstreamError(
-                        f"AI 服务返回错误（HTTP {response.status_code}），"
-                        "请稍后重试或联系管理员"
+                        f"AI 服务返回错误（HTTP {response.status_code}），请稍后重试或联系管理员"
                     )
 
                 async for line in response.aiter_lines():

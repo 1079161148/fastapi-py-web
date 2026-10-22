@@ -107,14 +107,11 @@ _UNANSWERED_TOTAL_SQL = text(
 )
 
 _DOC_COUNT_SQL = text(
-    "select count(*) as total from documents "
-    "where tenant_id = :tenant_id and status = 'done'"
+    "select count(*) as total from documents where tenant_id = :tenant_id and status = 'done'"
 )
 
 
-async def get_overview(
-    session: AsyncSession, *, limit: int = DEFAULT_LIMIT
-) -> InsightOverview:
+async def get_overview(session: AsyncSession, *, limit: int = DEFAULT_LIMIT) -> InsightOverview:
     tenant_id = require_current_tenant_id()
     limit = min(limit, MAX_LIMIT)
     params = {
@@ -124,15 +121,11 @@ async def get_overview(
         "fixed_reply_2": FIXED_REPLY_2,
     }
 
-    metrics = (
-        await session.execute(_METRICS_SQL, params)
-    ).mappings().one()
+    metrics = (await session.execute(_METRICS_SQL, params)).mappings().one()
     unanswered_rows = (
-        await session.execute(_UNANSWERED_SQL, {**params, "limit": limit})
-    ).mappings().all()
-    unanswered_total = (
-        await session.execute(_UNANSWERED_TOTAL_SQL, params)
-    ).scalar_one()
+        (await session.execute(_UNANSWERED_SQL, {**params, "limit": limit})).mappings().all()
+    )
+    unanswered_total = (await session.execute(_UNANSWERED_TOTAL_SQL, params)).scalar_one()
     knowledge_documents = (await session.execute(_DOC_COUNT_SQL, params)).scalar_one()
 
     total = metrics["total_answers"] or 0

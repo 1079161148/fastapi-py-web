@@ -56,13 +56,9 @@ class LLMUsageLog(Base):
     prompt_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     completion_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     # 非 token 计费口径的原始量：音频秒数 / 合成字符数 / 批处理条数
-    units: Mapped[Decimal] = mapped_column(
-        Numeric(12, 3), nullable=False, default=Decimal("0")
-    )
+    units: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, default=Decimal("0"))
     # 金额精度到 1e-6：单次调用可能远小于 0.01
-    cost: Mapped[Decimal] = mapped_column(
-        Numeric(12, 6), nullable=False, default=Decimal("0")
-    )
+    cost: Mapped[Decimal] = mapped_column(Numeric(12, 6), nullable=False, default=Decimal("0"))
     # 不继承 TimestampMixin：流水没有"更新时间"，updated_at 是纯粹的噪音列
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

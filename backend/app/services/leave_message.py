@@ -73,9 +73,7 @@ async def list_messages(
     rows = list((await session.execute(stmt)).scalars().all())
     has_more = len(rows) > limit
     items = rows[:limit]
-    next_cursor = (
-        encode_cursor(items[-1].created_at, items[-1].id) if has_more and items else None
-    )
+    next_cursor = encode_cursor(items[-1].created_at, items[-1].id) if has_more and items else None
     return items, next_cursor
 
 

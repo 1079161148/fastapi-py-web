@@ -119,8 +119,7 @@ async def add_member(
         if str(row["tenant_id"]) == str(tenant_id):
             raise ConflictError("该邮箱已是本租户成员")
         raise ConflictError(
-            "该邮箱已在其他租户注册：当前版本账号绑定单一主租户，"
-            "请用其他邮箱创建本租户成员"
+            "该邮箱已在其他租户注册：当前版本账号绑定单一主租户，请用其他邮箱创建本租户成员"
         )
 
     # 用户名只在本租户内唯一：此处租户上下文已由依赖设置，直接查 users 表即可，

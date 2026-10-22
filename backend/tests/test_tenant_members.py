@@ -44,17 +44,13 @@ async def test_add_member_and_login(client: AsyncClient, unique_email: str) -> N
     assert login.status_code == 200, login.text
     assert login.json()["user"]["tenant_id"] == owner["user"]["tenant_id"]
 
-    members = await client.get(
-        "/api/v1/tenants/current/members", headers=auth_headers(owner_token)
-    )
+    members = await client.get("/api/v1/tenants/current/members", headers=auth_headers(owner_token))
     assert members.status_code == 200
     emails = {item["email"] for item in members.json()}
     assert emails == {unique_email, agent_email}
 
 
-async def test_add_member_rejects_existing_email(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_add_member_rejects_existing_email(client: AsyncClient, unique_email: str) -> None:
     owner = await register_user(client, unique_email)
     owner_token = owner["tokens"]["access_token"]
 
@@ -136,9 +132,7 @@ async def test_promote_then_demote_owner(client: AsyncClient, unique_email: str)
     assert demoted.json()["role"] == "admin"
 
 
-async def test_remove_member_disables_account(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_remove_member_disables_account(client: AsyncClient, unique_email: str) -> None:
     owner = await register_user(client, unique_email)
     token = owner["tokens"]["access_token"]
     agent_email = f"agent-{unique_email}"
@@ -163,15 +157,11 @@ async def test_remove_member_disables_account(
     assert blocked.status_code == 401
 
     # 已签发的刷新令牌被吊销：不能靠旧令牌续命
-    refreshed = await client.post(
-        "/api/v1/auth/refresh", json={"refresh_token": agent_refresh}
-    )
+    refreshed = await client.post("/api/v1/auth/refresh", json={"refresh_token": agent_refresh})
     assert refreshed.status_code == 401
     assert refreshed.json()["code"] in {"TOKEN_REVOKED", "UNAUTHENTICATED"}
 
-    members = await client.get(
-        "/api/v1/tenants/current/members", headers=auth_headers(token)
-    )
+    members = await client.get("/api/v1/tenants/current/members", headers=auth_headers(token))
     assert {item["email"] for item in members.json()} == {unique_email}
 
 

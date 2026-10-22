@@ -1,6 +1,7 @@
 """审计日志相关模型。"""
 
 import uuid
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
@@ -14,5 +15,5 @@ class AuditLogInfo(BaseModel):
     action: str
     target_type: str
     target_id: str
-    detail: dict
+    detail: dict[str, Any]
     created_at: str

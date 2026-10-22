@@ -40,9 +40,7 @@ class TenantSettings(BaseModel):
     # 敏感词词库（M9）：命中后按 sensitive_action 处置；空词库 = 不过滤
     sensitive_words: list[str] = Field(default_factory=list, max_length=200)
     # warn=仅记录 / handoff=记录并转人工 / block=直接拒绝本次输入
-    sensitive_action: str = Field(
-        default="warn", pattern="^(warn|handoff|block)$"
-    )
+    sensitive_action: str = Field(default="warn", pattern="^(warn|handoff|block)$")
     # 质检抽检比例（M9）：0.1 = 每 10 个会话抽 1 个；0 表示不自动抽样
     quality_sample_ratio: float = Field(default=0.0, ge=0, le=1)
 
@@ -99,9 +97,7 @@ class TenantMemberCreate(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    email: str = Field(
-        min_length=3, max_length=255, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
-    )
+    email: str = Field(min_length=3, max_length=255, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     # 可选登录名：留空则该成员只能用邮箱登录
     username: str | None = Field(default=None, pattern=USERNAME_PATTERN)
     # 上限 72 与 bcrypt 的输入截断行为对齐（与注册接口一致）
@@ -112,4 +108,3 @@ class TenantMemberCreate(BaseModel):
 
 class TenantMemberUpdate(BaseModel):
     role: str = Field(pattern=f"^({'|'.join(TENANT_ROLES)})$")
-

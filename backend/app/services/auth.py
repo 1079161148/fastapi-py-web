@@ -67,9 +67,7 @@ async def build_user_info(session: AsyncSession, user: User) -> UserInfo:
     )
 
 
-async def _to_auth_response(
-    session: AsyncSession, user: User, tokens: TokenPair
-) -> AuthResponse:
+async def _to_auth_response(session: AsyncSession, user: User, tokens: TokenPair) -> AuthResponse:
     return AuthResponse(tokens=tokens, user=await build_user_info(session, user))
 
 
@@ -183,8 +181,7 @@ async def login(
         if not tenant:
             raise AppError(
                 code="TENANT_REQUIRED",
-                message="使用用户名登录时需要填写组织标识（租户 slug）；"
-                "或直接使用邮箱登录",
+                message="使用用户名登录时需要填写组织标识（租户 slug）；或直接使用邮箱登录",
                 status_code=400,
                 expose=True,
             )
@@ -199,17 +196,13 @@ async def login(
         # 统一报错：不区分"标识不存在"与"密码错误"，避免账号枚举
         or not verify_password(password, row["password_hash"])
     ):
-        raise AppError(
-            code="INVALID_CREDENTIALS", message="邮箱/用户名或密码错误", status_code=401
-        )
+        raise AppError(code="INVALID_CREDENTIALS", message="邮箱/用户名或密码错误", status_code=401)
 
     await _apply_tenant_context(session, uuid.UUID(str(row["tenant_id"])))
 
     user = await session.get(User, uuid.UUID(str(row["id"])))
     if user is None:  # 理论不可达：函数刚返回该行
-        raise AppError(
-            code="INVALID_CREDENTIALS", message="邮箱/用户名或密码错误", status_code=401
-        )
+        raise AppError(code="INVALID_CREDENTIALS", message="邮箱/用户名或密码错误", status_code=401)
 
     user.last_login_at = datetime.now(UTC)
     tokens, jti = _issue_tokens(user)

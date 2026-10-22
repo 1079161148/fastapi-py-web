@@ -87,9 +87,7 @@ async def test_usage_summary_groups_by_model(
     assert len(by_day.json()["buckets"]) == 1
 
 
-async def test_usage_summary_rejects_bad_params(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_usage_summary_rejects_bad_params(client: AsyncClient, unique_email: str) -> None:
     data = await register_user(client, unique_email)
     token = data["tokens"]["access_token"]
 
@@ -108,9 +106,7 @@ async def test_usage_summary_rejects_bad_params(
     assert inverted.json()["code"] == "INVALID_TIME_RANGE"
 
 
-async def test_usage_overview_requires_tenant_admin(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_usage_overview_requires_tenant_admin(client: AsyncClient, unique_email: str) -> None:
     owner = await register_user(client, unique_email)
     owner_token = owner["tokens"]["access_token"]
     tenant_id = owner["user"]["tenant_id"]
@@ -164,9 +160,9 @@ async def test_token_quota_blocks_stream_and_keeps_history_clean(
 
     headers = {**auth_headers(token), **tenant_headers(tenant_id)}
     await ensure_guest_session(client, tenant_id)
-    conversation_id = (
-        await client.post("/api/v1/conversations", json={}, headers=headers)
-    ).json()["id"]
+    conversation_id = (await client.post("/api/v1/conversations", json={}, headers=headers)).json()[
+        "id"
+    ]
 
     resp = await client.post(
         f"/api/v1/conversations/{conversation_id}/messages/stream",

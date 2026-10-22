@@ -40,7 +40,9 @@ class Settings(BaseSettings):
 
     # 知识库与检索（设计文档 9.4）
     # 向量维度必须与嵌入模型一致，且建表时已固定——换模型需要迁移重建列
-    ai_embedding_dim: int = 1536
+    # 向量维度必须与嵌入模型一致，且与库里已建的列匹配（迁移 0012 起为 2048）。
+    # 换模型 = 换维度时必须有配套迁移重建列与索引，不能只改环境变量。
+    ai_embedding_dim: int = 2048
     # 分块：窗口大小与重叠字符数；策略 by_heading / fixed_window
     chunk_strategy: str = "by_heading"
     chunk_size: int = 800

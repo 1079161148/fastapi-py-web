@@ -115,8 +115,10 @@ async def run(args: argparse.Namespace) -> None:
     admin_p50 = _summary("超管(无RLS)", admin)
     app_p50 = _summary("应用(RLS)", app)
     if admin_p50 > 0:
-        print(f"RLS 额外开销（p50）：{app_p50 - admin_p50:+.3f} ms "
-              f"({(app_p50 / admin_p50 - 1) * 100:+.1f}%)")
+        print(
+            f"RLS 额外开销（p50）：{app_p50 - admin_p50:+.3f} ms "
+            f"({(app_p50 / admin_p50 - 1) * 100:+.1f}%)"
+        )
     print("=" * 66)
     print(
         "解读提示：绝对值受数据集与缓存影响很大，关注 p95 与差值是否随数据量增长；\n"

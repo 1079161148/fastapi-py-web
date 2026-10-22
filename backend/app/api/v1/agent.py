@@ -180,9 +180,7 @@ async def list_conversations(
                 owner_type=item.conversation.owner_type,
                 status=item.conversation.status,
                 updated_at=item.conversation.updated_at,
-                ticket=(
-                    HandoffTicketInfo.model_validate(item.ticket) if item.ticket else None
-                ),
+                ticket=(HandoffTicketInfo.model_validate(item.ticket) if item.ticket else None),
             )
             for item in items
         ],

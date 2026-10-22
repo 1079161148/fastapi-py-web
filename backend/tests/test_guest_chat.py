@@ -19,9 +19,7 @@ from httpx import AsyncClient
 from app.core.config import get_settings
 
 
-async def test_guest_session_sets_httponly_cookie(
-    client: AsyncClient, unique_email: str
-) -> None:
+async def test_guest_session_sets_httponly_cookie(client: AsyncClient, unique_email: str) -> None:
     data = await register_user(client, unique_email)
     headers = tenant_headers(data["user"]["tenant_id"])
 
@@ -98,9 +96,9 @@ async def test_messages_cursor_pagination(
     headers = tenant_headers(tenant_id)
     await ensure_guest_session(client, tenant_id)
 
-    conversation_id = (
-        await client.post("/api/v1/conversations", json={}, headers=headers)
-    ).json()["id"]
+    conversation_id = (await client.post("/api/v1/conversations", json={}, headers=headers)).json()[
+        "id"
+    ]
     for content in ("第一问", "第二问"):
         resp = await client.post(
             f"/api/v1/conversations/{conversation_id}/messages/stream",
@@ -137,9 +135,9 @@ async def test_other_guest_cannot_access_conversation(
     tenant_id = data["user"]["tenant_id"]
     headers = tenant_headers(tenant_id)
     await ensure_guest_session(client, tenant_id)
-    conversation_id = (
-        await client.post("/api/v1/conversations", json={}, headers=headers)
-    ).json()["id"]
+    conversation_id = (await client.post("/api/v1/conversations", json={}, headers=headers)).json()[
+        "id"
+    ]
 
     # 换一个访客：清掉 cookie 后重新签发
     client.cookies.clear()
@@ -188,9 +186,9 @@ async def test_stream_without_llm_config_returns_503(
     tenant_id = data["user"]["tenant_id"]
     headers = tenant_headers(tenant_id)
     await ensure_guest_session(client, tenant_id)
-    conversation_id = (
-        await client.post("/api/v1/conversations", json={}, headers=headers)
-    ).json()["id"]
+    conversation_id = (await client.post("/api/v1/conversations", json={}, headers=headers)).json()[
+        "id"
+    ]
 
     resp = await client.post(
         f"/api/v1/conversations/{conversation_id}/messages/stream",

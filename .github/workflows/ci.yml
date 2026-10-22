@@ -36,7 +36,8 @@ jobs:
           --health-timeout 3s
           --health-retries 12
     env:
-      JWT_SECRET: ci-test-secret
+      # JWT_SECRET 有 >=32 的启动校验：写短了应用根本起不来（CI 曾在此失败）
+      JWT_SECRET: ci-test-secret-0123456789abcdef0123456789abcdef
       APP_DB_PASSWORD: aics_app
       DATABASE_URL: postgresql+asyncpg://aics_app:aics_app@localhost:5432/aics_test
       MIGRATION_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/aics_test
@@ -66,11 +67,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 11
+          # 与 frontend/pnpm-lock.yaml（lockfileVersion 9.0）及 Dockerfile.web 保持同版本，
+          # 大版本不一致时 --frozen-lockfile 可能直接失败
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          # 锁文件在子目录，不指定路径时 setup-node 只在仓库根找，会直接报
+          # "Dependencies lock file is not found"（前端 job 曾在此失败）
+          cache-dependency-path: frontend/pnpm-lock.yaml
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
       - name: eslint

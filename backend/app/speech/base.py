@@ -89,9 +89,7 @@ class TranscriptionClient(Protocol):
 
 
 class SpeechClient(Protocol):
-    async def synthesize(
-        self, text: str, *, voice: str | None = None
-    ) -> SynthesisResult:
+    async def synthesize(self, text: str, *, voice: str | None = None) -> SynthesisResult:
         """把文本合成为音频。空音频同样抛错，不返回 0 字节。"""
         ...
 

@@ -279,9 +279,7 @@ async def stream_message(
             session,
             conversation=conversation,
             requested_by=(
-                REQUESTED_BY_USER
-                if owner.owner_type == OWNER_TYPE_USER
-                else REQUESTED_BY_GUEST
+                REQUESTED_BY_USER if owner.owner_type == OWNER_TYPE_USER else REQUESTED_BY_GUEST
             ),
             note=f"触发词：{trigger}",
         )
@@ -300,9 +298,7 @@ async def stream_message(
                 status_code=503,
                 expose=True,
             )
-        return locked_stream(
-            tenant_settings.fallback_reply, CONVERSATION_STATUS_AI
-        )
+        return locked_stream(tenant_settings.fallback_reply, CONVERSATION_STATUS_AI)
 
     async def event_stream() -> AsyncIterator[str]:
         async for event in chat_service.stream_reply(
@@ -425,7 +421,9 @@ async def rate_message(
     message = await conversation_service.rate_message(
         session, owner=owner, message_id=message_id, score=payload.score
     )
-    return RatingInfo(message_id=message.id, score=message.rating)
+    # 评分已落库（rate_message 内部已写入），直接用请求值回显，
+    # 避免把可空的 message.rating 当成确定值传给 schema
+    return RatingInfo(message_id=message.id, score=payload.score)
 
 
 @router.post("/{conversation_id}/handoff", response_model=HandoffResponse)
@@ -453,8 +451,7 @@ async def request_handoff(
     ):
         raise AppError(
             code="OUT_OF_WORK_HOURS",
-            message="当前不在工作时间，暂时无法转人工：请提交离线留言，"
-            "坐席会在工作时间回复你",
+            message="当前不在工作时间，暂时无法转人工：请提交离线留言，坐席会在工作时间回复你",
             status_code=409,
             expose=True,
         )

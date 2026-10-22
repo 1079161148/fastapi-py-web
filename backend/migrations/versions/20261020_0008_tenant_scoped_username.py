@@ -70,12 +70,8 @@ def upgrade() -> None:
         $$
         """
     )
-    op.execute(
-        "REVOKE ALL ON FUNCTION auth_lookup_user_by_name(text, text) FROM PUBLIC"
-    )
-    op.execute(
-        f"GRANT EXECUTE ON FUNCTION auth_lookup_user_by_name(text, text) TO {APP_ROLE}"
-    )
+    op.execute("REVOKE ALL ON FUNCTION auth_lookup_user_by_name(text, text) FROM PUBLIC")
+    op.execute(f"GRANT EXECUTE ON FUNCTION auth_lookup_user_by_name(text, text) TO {APP_ROLE}")
 
 
 def downgrade() -> None:
